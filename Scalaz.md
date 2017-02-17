@@ -128,7 +128,7 @@ res26: Option[Int] = Some(4)
 
 ### `NonEmptyList` datatype
 
-`NonEmptyList` communicates to readers that the list cannot be empty. The fact that the list cannot be empty means that methods such as `head` and `tail` are non total functions. 
+`NonEmptyList` communicates to readers that the list cannot be empty. The fact that the list cannot be empty means that methods such as `head` and `tail` are now total functions. 
 
 ```
 @ NonEmptyList(1,2,3)
