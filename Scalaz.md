@@ -1,3 +1,5 @@
+<!-- $theme: default -->
+
 Scalaz
 ===
 
@@ -12,6 +14,8 @@ Scalaz
 * scalaz-concurrent: Actor and Future implementation
 * scalaz-iteratee: Experimental new Iteratee implementation
 
+Reference: https://github.com/scalaz/scalaz/blob/series/7.3.x/README.md
+
 ---
 
 ### Using Scalaz (core)
@@ -23,8 +27,9 @@ Scalaz
 `import scalaz._, Scalaz._`
 
 - Ammonite
-
-`import $ivy.`org.scalaz::scalaz-core:7.2.8`, scalaz._, Scalaz._`
+```
+import $ivy.`org.scalaz::scalaz-core:7.2.8`, scalaz._, Scalaz._
+```
 
 ---
 
@@ -90,7 +95,6 @@ res41: Int = 2
 res36: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 @ 1 |--> (2, 10)
 res37: List[Int] = List(1, 3, 5, 7, 9)
-@ 'a' |==> 'd'
 @ 'a' |=> 'd'
 res38: EphemeralStream[Char] = scalaz.EphemeralStream$$anon$5@2f833b71
 @ res38.n
@@ -98,7 +102,7 @@ res38: EphemeralStream[Char] = scalaz.EphemeralStream$$anon$5@2f833b71
 
 ---
 
-### Working with `Option`
+### Working with `Option` datatype
 
 - Using `some` and `none`
 ```
@@ -122,7 +126,7 @@ res26: Option[Int] = Some(4)
 
 ---
 
-### `NonEmptyList`
+### `NonEmptyList` datatype
 
 `NonEmptyList` communicates to readers that the list cannot be empty. The fact that the list cannot be empty means that methods such as `head` and `tail` are non total functions. 
 
@@ -134,9 +138,89 @@ res47: Int = 1
 @ NonEmptyList(1,2,3).tail
 res48: IList[Int] = [2,3]
 @ NonEmptyList()
-cmd49.sc:1: not enough arguments for method apply: (h: A, t: A*)scalaz.NonEmptyList[A] in object NonEmptyList.
+cmd49.sc:1: not enough arguments for method apply: 
+(h: A, t: A*)scalaz.NonEmptyList[A] in object NonEmptyList.
 Unspecified value parameters h, t.
 val res49 = NonEmptyList()
                         ^
 Compilation Failed
 ```
+
+---
+
+### Tagged types
+
+```
+@ trait AgeTag
+defined trait AgeTag
+@ trait NameTag
+defined trait NameTag
+
+@ type Age = Int @@ AgeTag
+defined type Age
+@ type Name = String @@ NameTag
+defined type Name
+
+@ val michael = Tag.of[NameTag]("Michael")
+michael: String @@ NameTag = Michael
+@ Tag.unwrap(michael)
+res8: michael.Self = "Michael"
+@ val ages: List[Age] = Tag.subst(List(34,11,55,25))
+ages: List[Age] = List(34, 11, 55, 25)
+@ Tag.unsubst(ages)
+res10: List[Int] = List(34, 11, 55, 25)
+```
+
+---
+
+### `Validation` datatype
+
+Not a monad but allows the accumulation of errors.
+
+```
+@ implicit class TagInts(n: Int) {
+    def mkAge: Validation[NonEmptyList[String], Age] =
+      (n > 0)? Tag.of[AgeTag](n).successNel[String] | 
+      "Age is negative".failureNel[Age]
+    }
+@ implicit class TagStrings(str: String) {
+    def mkName: Validation[NonEmptyList[String], Name] =
+      str.nonEmpty? Tag.of[NameTag](str).successNel[String] | 
+      "Name not provided".failureNel[Name]
+    }
+```
+
+Note: The return types above could be written as `ValidationNel[String, Age]` and `ValidationNel[String, Name]`
+
+---
+
+### `Applicative syntax` with `Validation`
+
+```
+@ case class Person(name: Name, age: Age)
+defined class Person
+@ ("Michael".mkName |@| 25.mkAge) { Person }
+res14: Validation[NonEmptyList[String], Person] = 
+    Success(Person(Michael, 25))
+@ ("Michael".mkName |@| -100.mkAge) { Person }
+res15: Validation[NonEmptyList[String], Person] = 
+    Failure(NonEmpty[Age is negative])
+@ ("".mkName |@| -100.mkAge) { Person }
+res16: Validation[NonEmptyList[String], Person] = 
+    Failure(NonEmpty[Name not provided,Age is negative])
+```
+
+---
+
+### Resources
+
+Source code -
+https://github.com/scalaz/scalaz
+
+Examples -
+https://github.com/scalaz/scalaz/tree/series/7.3.x/example/src/main/scala/scalaz/example
+
+Learning Scalaz -
+http://eed3si9n.com/learning-scalaz/
+
+
