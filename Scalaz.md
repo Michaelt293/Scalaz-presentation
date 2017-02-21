@@ -121,14 +121,13 @@ test2: Option[Int] = None
 res25: Option[Int] = Some(4)
 @ (x > 0).option(x)
 res26: Option[Int] = Some(4)
-@ Some(3)
 ```
 
 ---
 
 ### `NonEmptyList` datatype
 
-`NonEmptyList` communicates to readers that the list cannot be empty. The fact that the list cannot be empty means that methods such as `head` and `tail` are now total functions. 
+`NonEmptyList` communicates to readers that the list cannot be empty. The fact that the list cannot be empty means that methods such as `head` and `tail` are now total functions.
 
 ```
 @ NonEmptyList(1,2,3)
@@ -138,7 +137,7 @@ res47: Int = 1
 @ NonEmptyList(1,2,3).tail
 res48: IList[Int] = [2,3]
 @ NonEmptyList()
-cmd49.sc:1: not enough arguments for method apply: 
+cmd49.sc:1: not enough arguments for method apply:
 (h: A, t: A*)scalaz.NonEmptyList[A] in object NonEmptyList.
 Unspecified value parameters h, t.
 val res49 = NonEmptyList()
@@ -180,12 +179,12 @@ Not a monad but allows the accumulation of errors.
 ```
 @ implicit class TagInts(n: Int) {
     def mkAge: Validation[NonEmptyList[String], Age] =
-      (n > 0)? Tag.of[AgeTag](n).successNel[String] | 
+      (n > 0)? Tag.of[AgeTag](n).successNel[String] |
       "Age is negative".failureNel[Age]
     }
 @ implicit class TagStrings(str: String) {
     def mkName: Validation[NonEmptyList[String], Name] =
-      str.nonEmpty? Tag.of[NameTag](str).successNel[String] | 
+      str.nonEmpty? Tag.of[NameTag](str).successNel[String] |
       "Name not provided".failureNel[Name]
     }
 ```
@@ -200,13 +199,13 @@ Note: The return types above could be written as `ValidationNel[String, Age]` an
 @ case class Person(name: Name, age: Age)
 defined class Person
 @ ("Michael".mkName |@| 25.mkAge) { Person }
-res14: Validation[NonEmptyList[String], Person] = 
+res14: Validation[NonEmptyList[String], Person] =
     Success(Person(Michael, 25))
 @ ("Michael".mkName |@| -100.mkAge) { Person }
-res15: Validation[NonEmptyList[String], Person] = 
+res15: Validation[NonEmptyList[String], Person] =
     Failure(NonEmpty[Age is negative])
 @ ("".mkName |@| -100.mkAge) { Person }
-res16: Validation[NonEmptyList[String], Person] = 
+res16: Validation[NonEmptyList[String], Person] =
     Failure(NonEmpty[Name not provided,Age is negative])
 ```
 
@@ -222,5 +221,3 @@ https://github.com/scalaz/scalaz/tree/series/7.3.x/example/src/main/scala/scalaz
 
 Learning Scalaz -
 http://eed3si9n.com/learning-scalaz/
-
-
